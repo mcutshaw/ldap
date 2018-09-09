@@ -10,6 +10,10 @@ password = config['Main']['Password']
 baseDN = config['Main']['BaseDN']
 emailFile = config['Main']['EmailFile']
 outputFile = config['Main']['OutputFile']
+filters = config.items('SearchDN')
+filterList = []
+for item in filters:
+    filterList.append(item[1])
 
 s = Server(server, get_info=ALL)  
 c = Connection(s, user='CN='+username+','+baseDN, password=password)
@@ -24,13 +28,15 @@ f.close
 
 searchFilter = '(|'
 for email in emails:
-    searchFilter+='(mail=' + email + ')'
+    searchFilter+='(proxyAddresses=smtp:' + email + ')'
 searchFilter+=')'
 
-c.search(baseDN,searchFilter,attributes=['cn', 'mail', 'sAMAccountName'])
 f = open(outputFile,'w')
-for entry in c.entries:
-    accountUsername = entry['sAMAccountName']
-    f.write(accountUsername.values[0])
-    print(accountUsername)
+
+for item in filterList:
+    c.search(item,searchFilter,attributes=['cn', 'mailNickname', 'sAMAccountName'])
+    for entry in c.entries:
+        accountUsername = entry['sAMAccountName']
+        f.write(accountUsername.values[0]+'\n')
+        print(accountUsername)
 f.close
