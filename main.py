@@ -34,9 +34,10 @@ searchFilter+=')'
 f = open(outputFile,'w')
 
 for item in filterList:
-    c.search(item,searchFilter,attributes=['cn', 'mailNickname', 'sAMAccountName'])
+    c.search(item,searchFilter,attributes=['cn', 'proxyAddresses', 'sAMAccountName'])
     for entry in c.entries:
         accountUsername = entry['sAMAccountName']
+        proxyAddresses = entry['proxyAddresses']
         f.write(accountUsername.values[0]+'\n')
         print(accountUsername)
 f.close
